@@ -1,22 +1,21 @@
 pipeline {
-    options {
-        timeout(time: 1, unit: 'HOURS')
-    }
-    agent {
-        label 'ubuntu-1804 && amd64 && docker'
-    }
-    stages {
-        stage('build and push') {
-            when {
-                branch 'master'
-            }
-            sh "docker build -t docker/getting-started ."
+   agent any
 
-            steps {
-                withDockerRegistry([url: "", credentialsId: "dockerbuildbot-index.docker.io"]) {
-                    sh("docker push docker/getting-started")
-                }
-            }
+   tools {
+      maven 'maven-3.8.4'
+      jdk 'JDK 17'
+   }
+
+   stages {
+      stage('Checkout') {
+         steps{
+            checkout scm
+         }
+      }
+      stage('Build') {
+        steps {
+            sh 'mvn clean verify'
         }
-    }
+      }
+   }
 }
